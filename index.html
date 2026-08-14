@@ -102,7 +102,7 @@
           <div class="form-grid">
             <div class="field span2"><label>项目名称</label><input id="projectName" placeholder="如 针王橘子系列上新"></div>
             <div class="field span2"><label>日期范围</label><input id="dateRange" placeholder="如 7.24-7.30"></div>
-            <div class="field"><label>周期（自动生成）</label><input id="period" placeholder="填写日期后自动生成" readonly></div>
+            <input id="period" type="hidden">
             <div class="field"><label>订单口径</label><select id="channel"><option>外卖</option><option>堂食</option><option>打包</option></select></div>
           </div>
           <div class="target-grid"><div class="target-caption">目标与进度</div><div class="field"><label>累计天数</label><input id="elapsedDays" type="number" min="1" value="3"></div><div class="field"><label>目标指标</label><select id="targetMetric"><option value="product_qty">重点商品销量</option><option value="product_gmv">重点商品GMV</option><option value="channel_qty">渠道总销量</option><option value="channel_gmv">渠道总GMV</option></select></div><div class="field"><label>目标值</label><div class="input-unit"><input id="targetValue" type="number" min="0" step="0.01" value="90.5"><span id="targetUnit">万杯</span></div></div><div class="field"><label>目标天数</label><input id="targetDays" type="number" min="1" value="7"></div></div>
