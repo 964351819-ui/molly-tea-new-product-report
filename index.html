@@ -47,6 +47,10 @@
     .repurchase-desc{margin:0 0 10px;color:var(--muted);font-size:11px;line-height:1.65}.repurchase-upload{height:38px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--line-strong);border-radius:9px;background:var(--card2);color:var(--ink);font-size:12px;font-weight:650;cursor:pointer}.repurchase-upload:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
     .repurchase-state{display:none;margin-top:9px;padding:9px 10px;border-radius:9px;background:#eef8f2;color:#226b47;font-size:11px;line-height:1.65}.repurchase-state.show{display:block}.repurchase-state.error{background:#fff0ef;color:#a62f27}.platform-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.platform-tag{padding:3px 7px;border-radius:999px;background:rgba(34,107,71,.09);font-size:10px}
     .repurchase-note{margin-top:8px;color:var(--muted);font-size:10px;line-height:1.55}
+    .cleaning-box{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+    .cleaning-paste{min-height:88px;margin-top:9px;padding:10px 11px;font-size:11px;line-height:1.55;resize:vertical}
+    .cleaning-actions{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}.cleaning-actions button{height:36px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--muted);padding:0 12px;font-size:11px;font-weight:650}.cleaning-actions button:first-child{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+    .cleaning-state{display:none;margin-top:9px;padding:9px 10px;border-radius:9px;background:#eef8f2;color:#226b47;font-size:11px;line-height:1.65}.cleaning-state.show{display:block}.cleaning-state.error{background:#fff0ef;color:#a62f27}.cleaning-metrics{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.cleaning-metric{padding:3px 7px;border-radius:999px;background:rgba(34,107,71,.09);font-size:10px}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;margin-bottom:4px}.span2,.span4{grid-column:1/-1}
     .field{display:grid;gap:6px;margin-bottom:13px}.field:last-child{margin-bottom:0}.field label{font-size:12px;color:var(--muted)}.form-grid>.field{grid-template-rows:19px 42px;align-content:start}.form-grid>.field>label{line-height:19px}
     input,select,textarea{width:100%;height:42px;border:1px solid transparent;border-radius:9px;background:var(--field);color:var(--ink);padding:9px 11px;outline:none;transition:.15s}
@@ -106,6 +110,15 @@
             <div class="repurchase-state" id="repurchaseState"></div>
             <div class="repurchase-note">汇总复购率＝三平台复购客户数合计 ÷ 三平台购买客户数合计；跨平台重复用户因无统一用户标识无法去重。</div>
           </div>
+          <div class="cleaning-box">
+            <div class="repurchase-title"><strong>商品清洗名单</strong><span class="optional">建议上传</span></div>
+            <p class="repurchase-desc">上传或粘贴“商品名称、是否保留”两列；标记为“否”的商品将先剔除，再参与全部指标计算。</p>
+            <label class="repurchase-upload">上传清洗名单<input id="cleaningFile" type="file" accept=".xlsx,.xls,.csv,.txt,text/csv,text/plain" hidden></label>
+            <textarea id="cleaningPaste" class="cleaning-paste" placeholder="商品名称&#9;是否保留&#10;加寒天&#9;否&#10;针王苹果&#9;是"></textarea>
+            <div class="cleaning-actions"><button id="applyCleaning" type="button">应用粘贴名单</button><button id="clearCleaning" type="button">清空</button></div>
+            <div class="cleaning-state" id="cleaningState"></div>
+            <div class="repurchase-note">仅“否”会被排除；“是”和名单外商品默认保留。商品名称按去除首尾空格后精确匹配。</div>
+          </div>
         </div>
       </section>
       <section class="card">
@@ -130,7 +143,7 @@
       <div class="report" id="report">
         <div class="report-toolbar"><div><h2 id="reportHeading">项目数据报告</h2><div class="hint" id="reportMeta"></div></div><div class="toolbar-actions"><button id="copySummary">复制总结</button><button id="copyTables">复制两张表格</button><button id="exportWps">导出 WPS 表格</button></div></div>
         <div class="quality" id="quality"></div>
-        <div class="definition"><h3>名词规范</h3><p><b>1、销量占比：</b>某一款产品在所选渠道的销量 ÷ 所选区域该渠道全部商品销量。</p><p><b>2、GMV占比：</b>某一款产品在所选渠道的GMV ÷ 所选区域该渠道全部商品GMV。</p><p><b>3、大盘贡献率：</b>某一款产品所选渠道销量（或GMV）÷ 该产品全渠道销量（或GMV）。</p></div>
+        <div class="definition"><h3>名词规范</h3><p><b>1、销量占比：</b>某一款产品在所选渠道的销量 ÷ 所选区域该渠道全部商品销量。</p><p><b>2、GMV占比：</b>某一款产品在所选渠道的GMV ÷ 所选区域该渠道全部商品GMV。</p><p><b>3、大盘贡献率：</b>某一款产品所选渠道销量（或GMV）÷ 该产品全渠道销量（或GMV）。</p><p><b>4、清洗口径：</b>所有指标均先剔除清洗名单中“是否保留=否”的商品，再计算分子、分母、排名及区域数据。</p></div>
         <div class="sheet" id="overallSheet"><div class="sheet-title" id="overallTitle"></div><div class="table-wrap" id="overallTable"></div><div class="summary-box"><div class="summary-title" id="summaryTitle"></div><div class="summary-text" id="summaryText"></div></div></div>
         <div class="sheet"><div class="sheet-title" id="regionTitle"></div><div class="table-wrap" id="regionTable"></div></div>
         <div class="footnote">说明：复购率因当前源表不含用户/订单标识，统一显示“—”；商品排名按所选区域、所选渠道、全部商品销量计算。WPS 导出为多工作表 XML 格式，可直接用 WPS/Excel 打开。</div>
@@ -145,8 +158,8 @@
       <nav class="manual-nav" aria-label="说明书目录"><div class="manual-nav-title">目录</div><a href="#manual-start">快速上手</a><a href="#manual-source">数据源要求</a><a href="#manual-config">项目配置</a><a href="#manual-metric">指标口径</a><a href="#manual-output">报表与导出</a><a href="#manual-check">使用提醒</a></nav>
       <main class="manual-content">
         <section class="manual-section" id="manual-start"><h3>1. 快速上手</h3><p>工具用于把商品明细源表整理为新品整体数据、子公司维度和汇报总结。计算在浏览器本地完成，不会上传源表。</p><div class="manual-steps"><div class="manual-step"><i>1</i><b>上传源表</b><span>选择 CSV 文件，系统会自动校验必需字段。</span></div><div class="manual-step"><i>2</i><b>确认口径</b><span>选择项目、渠道，填写重点商品与目标；如需复购率，可同时上传三平台复购文件。</span></div><div class="manual-step"><i>3</i><b>生成报表</b><span>核对质量提示，再复制总结或导出 WPS。</span></div></div><div class="manual-callout"><b>分析范围：</b>自动采用数据源内全部有效“三级机构”，无需手动选择区域。</div></section>
-        <section class="manual-section" id="manual-source"><h3>2. 数据源要求</h3><p>请上传 CSV 文件，第一行必须为字段名。系统会自动过滤“三级机构=汇总：”的合计行。</p><div class="manual-tablewrap"><table class="manual-table"><thead><tr><th>必需字段</th><th>用途</th></tr></thead><tbody><tr><td>三级机构</td><td>识别子公司/大区范围。</td></tr><tr><td>订单类型</td><td>区分外卖、堂食、打包等渠道。</td></tr><tr><td>商品名称</td><td>与重点商品进行精确匹配。</td></tr><tr><td>商品销量</td><td>计算销量、占比、贡献率与店均。</td></tr><tr><td>商品销售额</td><td>计算 GMV、占比与目标进度。</td></tr></tbody></table></div><div class="manual-callout"><b>商品名称必须完全一致。</b>空格、套餐后缀或错别字都会造成无法匹配；生成后请查看质量提示。</div></section>
-        <section class="manual-section" id="manual-config"><h3>3. 项目配置</h3><ul><li><b>项目名称：</b>填写本次上新或联名项目名称。</li><li><b>日期范围/周期：</b>填写日期后自动识别起止星期；未填写年份时默认按当年计算。</li><li><b>累计天数：</b>本次数据实际覆盖天数。</li><li><b>目标指标：</b>可选择重点商品或渠道大盘的销量/GMV口径。</li><li><b>目标值：</b>销量统一填写“万杯”，GMV统一填写“万元”。</li><li><b>门店数：</b>源表无门店 ID 时，用于计算各区域店均杯数。</li><li><b>复购率文件：</b>一次上传美团、淘宝闪购、京东外卖 3 份菜品复购分析 XLSX，系统自动按购买客户数加权汇总。</li></ul></section>
+        <section class="manual-section" id="manual-source"><h3>2. 数据源要求</h3><p>请上传 CSV 文件，第一行必须为字段名。系统会自动过滤“三级机构=汇总：”的合计行；如上传商品清洗名单，还会剔除“是否保留=否”的商品。</p><div class="manual-tablewrap"><table class="manual-table"><thead><tr><th>必需字段</th><th>用途</th></tr></thead><tbody><tr><td>三级机构</td><td>识别子公司/大区范围。</td></tr><tr><td>订单类型</td><td>区分外卖、堂食、打包等渠道。</td></tr><tr><td>商品名称</td><td>与重点商品进行精确匹配。</td></tr><tr><td>商品销量</td><td>计算销量、占比、贡献率与店均。</td></tr><tr><td>商品销售额</td><td>计算 GMV、占比与目标进度。</td></tr></tbody></table></div><div class="manual-callout"><b>商品名称必须完全一致。</b>空格、套餐后缀或错别字都会造成无法匹配；生成后请查看质量提示。</div></section>
+        <section class="manual-section" id="manual-config"><h3>3. 项目配置</h3><ul><li><b>项目名称：</b>填写本次上新或联名项目名称。</li><li><b>日期范围/周期：</b>填写日期后自动识别起止星期；未填写年份时默认按当年计算。</li><li><b>累计天数：</b>本次数据实际覆盖天数。</li><li><b>目标指标：</b>可选择重点商品或渠道大盘的销量/GMV口径。</li><li><b>目标值：</b>销量统一填写“万杯”，GMV统一填写“万元”。</li><li><b>门店数：</b>源表无门店 ID 时，用于计算各区域店均杯数。</li><li><b>复购率文件：</b>一次上传美团、淘宝闪购、京东外卖 3 份菜品复购分析 XLSX，系统自动按购买客户数加权汇总。</li><li><b>商品清洗名单：</b>支持 Excel、CSV、TXT 或直接粘贴；“是否保留=否”的商品会在所有计算前剔除，名单外商品默认保留。</li></ul></section>
         <section class="manual-section" id="manual-metric"><h3>4. 核心指标口径</h3><div class="manual-formula">销量占比 = 重点商品渠道销量 ÷ 所选渠道全部商品销量</div><div class="manual-formula">GMV占比 = 重点商品渠道GMV ÷ 所选渠道全部商品GMV</div><div class="manual-formula">销量大盘贡献率 = 重点商品渠道销量 ÷ 重点商品全渠道销量</div><div class="manual-formula">GMV大盘贡献率 = 重点商品渠道GMV ÷ 重点商品全渠道GMV</div><div class="manual-formula">目标进度 = 所选目标指标当前累计值 ÷ 目标值</div><div class="manual-formula">重点商品销量目标示例 = 重点商品渠道累计销量 ÷ 目标销量（万杯）</div><div class="manual-formula">时间进度 = 累计天数 ÷ 目标天数</div><div class="manual-formula">超/落后时间进度 = 目标进度 − 时间进度</div><div class="manual-formula">店均 = 子公司重点商品销量 ÷ 门店数</div><div class="manual-formula">三平台复购率 = 三平台复购客户数合计 ÷ 三平台购买客户数合计</div></section>
         <section class="manual-section" id="manual-output"><h3>5. 报表与导出</h3><p>生成后包括“新品整体数据”和“子公司维度”两张表，并自动生成一段可复制的汇报总结。</p><ul><li><b>复制总结：</b>复制当前项目的核心数据与目标进度。</li><li><b>复制两张表格：</b>一次复制商品汇总表和子公司维度表，可直接粘贴到 WPS、Excel 或文档。</li><li><b>导出 WPS 表格：</b>导出多工作表 XML，可直接使用 WPS 或 Excel 打开。</li><li><b>表格颜色：</b>顶部颜色面板可独立选择表头颜色，页面表格、复制结果和 WPS 导出同步变化。</li><li><b>主题与背景：</b>顶部色点可切换 8 套主题色，并支持上传照片、原图/柔化/深度柔化；背景只保存在当前浏览器。</li></ul></section>
         <section class="manual-section" id="manual-check"><h3>6. 使用提醒</h3><ul><li>重点商品采用精确匹配，生成后必须确认“未匹配商品”提示为 0。</li><li>目标值是渠道总目标，不是重点商品目标；请按项目实际口径填写。</li><li>源表没有用户或订单标识时，复购率统一显示“—”，不做推算。</li><li>门店数变化时请及时更新，否则店均数据会失真。</li><li>最终汇报前建议将表内合计与源表总计交叉核对。</li></ul></section>
@@ -180,7 +193,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <script>
 const $=id=>document.getElementById(id);
 const STORE_DEFAULTS={"上海大区":167,"江苏大区":302,"浙江大区":302,"鄂渝大区":185,"北京大区":194,"四川大区":290,"陕西大区":186,"东北大区":109,"福建大区":183,"河南大区":217,"广东大区":479};
-let sourceRows=[],sourceName="",lastResult=null,repurchaseData=new Map(),repurchaseMeta=[];
+let sourceRows=[],sourceName="",lastResult=null,repurchaseData=new Map(),repurchaseMeta=[],cleaningRules=new Map(),cleaningSource="";
 
 function parseCSV(text){
   const rows=[];let row=[],cell="",quoted=false;
@@ -203,6 +216,7 @@ async function loadFile(file){
     if(missing.length)throw new Error("缺少字段："+missing.join("、"));
     sourceRows=rows.filter(r=>r["三级机构"]!=="汇总：");sourceName=file.name;
     $('fileState').className='file-state show';$('fileState').textContent=`已读取 ${file.name} · ${sourceRows.length.toLocaleString()} 行`;
+    if(cleaningRules.size)renderCleaningState();
     showStatus("数据源已通过字段校验，可以生成报表。",false);
   }catch(e){sourceRows=[];$('fileState').className='file-state show';$('fileState').textContent="读取失败："+e.message;showStatus("请检查文件格式和字段名称。",true)}
 }
@@ -235,6 +249,43 @@ async function loadRepurchaseFiles(fileList){
     showStatus('三平台复购率已按购买客户数加权汇总。',false);
   }catch(e){repurchaseData=new Map();repurchaseMeta=[];state.className='repurchase-state show error';state.textContent='读取失败：'+e.message;showStatus('请检查三份复购率文件的平台、日期及表格格式。',true)}
 }
+function normalizeProductName(v){return String(v??'').trim()}
+function parseCleaningRows(rows,sourceLabel){
+  const matrix=(rows||[]).map(r=>Array.isArray(r)?r:[r]);
+  const headerRow=matrix.findIndex(row=>row.map(x=>normalizeProductName(x)).includes('商品名称')&&row.map(x=>normalizeProductName(x)).includes('是否保留'));
+  if(headerRow<0)throw new Error('未找到“商品名称、是否保留”两列表头');
+  const headers=matrix[headerRow].map(x=>normalizeProductName(x)),nameIdx=headers.indexOf('商品名称'),keepIdx=headers.indexOf('是否保留'),rules=new Map();
+  for(let i=headerRow+1;i<matrix.length;i++){
+    const name=normalizeProductName(matrix[i][nameIdx]),status=normalizeProductName(matrix[i][keepIdx]);if(!name||!status)continue;
+    if(!['是','否'].includes(status))continue;
+    if(rules.has(name)&&rules.get(name)!==status)throw new Error(`商品“${name}”同时标记为是和否`);
+    rules.set(name,status);
+  }
+  if(!rules.size)throw new Error('名单中没有有效的“是/否”记录');
+  cleaningRules=rules;cleaningSource=sourceLabel||'粘贴名单';renderCleaningState();showStatus('商品清洗名单已应用，生成报表时将先剔除标记为“否”的商品。',false);
+}
+function cleaningRowsFromText(text){
+  const value=String(text||'').replace(/^\uFEFF/,'').trim();if(!value)throw new Error('请粘贴清洗名单');
+  if(value.includes('\t'))return value.split(/\r?\n/).filter(Boolean).map(line=>line.split('\t'));
+  const objects=parseCSV(value),headers=Object.keys(objects[0]||{});return [headers,...objects.map(o=>headers.map(h=>o[h]))];
+}
+async function loadCleaningFile(file){
+  const state=$('cleaningState');state.className='cleaning-state show';state.textContent='正在读取…';
+  try{
+    let rows;if(/\.xlsx?$/i.test(file.name)){if(typeof XLSX==='undefined')throw new Error('Excel 解析组件未加载');const wb=XLSX.read(await file.arrayBuffer(),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]];rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});}
+    else rows=cleaningRowsFromText(await file.text());
+    parseCleaningRows(rows,file.name);
+  }catch(e){cleaningRules=new Map();cleaningSource='';state.className='cleaning-state show error';state.textContent='读取失败：'+e.message;showStatus('请检查清洗名单格式。',true)}
+}
+function cleaningStats(rows=sourceRows){
+  const excludedNames=new Set([...cleaningRules].filter(([,v])=>v==='否').map(([k])=>k)),removed=rows.filter(r=>excludedNames.has(normalizeProductName(r['商品名称']))),matched=new Set(removed.map(r=>normalizeProductName(r['商品名称'])));
+  return{ruleCount:cleaningRules.size,excludedCount:excludedNames.size,matchedCount:matched.size,removedRows:removed.length,removedQty:sum(removed,'商品销量'),removedGmv:sum(removed,'商品销售额'),excludedNames};
+}
+function renderCleaningState(){
+  const state=$('cleaningState');if(!cleaningRules.size){state.className='cleaning-state';state.textContent='';return}
+  const x=cleaningStats();state.className='cleaning-state show';state.innerHTML=`已应用 ${escapeHtml(cleaningSource)} · ${x.ruleCount.toLocaleString()} 个商品<div class="cleaning-metrics"><span class="cleaning-metric">排除 ${x.excludedCount} 个</span><span class="cleaning-metric">匹配 ${x.matchedCount} 个</span><span class="cleaning-metric">剔除 ${x.removedRows.toLocaleString()} 行</span></div>`;
+}
+function clearCleaning(){cleaningRules=new Map();cleaningSource='';$('cleaningPaste').value='';$('cleaningFile').value='';renderCleaningState();showStatus('商品清洗名单已清空。',false)}
 function showStatus(text,isError=false){const el=$('status');el.className='status show';el.style.background=isError?'#fff0ef':'#fff8ed';el.style.borderColor=isError?'#f1bbb7':'#f3d4a8';el.style.color=isError?'#a62f27':'#8d5816';el.textContent=text}
 function addProduct(value=''){const row=document.createElement('div');row.className='product-row';row.innerHTML=`<input class="product-input" value="${escapeAttr(value)}" placeholder="输入完整商品名称"><button type="button" title="删除">×</button>`;row.querySelector('button').onclick=()=>row.remove();$('productList').appendChild(row)}
 function escapeAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
@@ -255,15 +306,17 @@ function selectedStoreMap(){return Object.fromEntries([...document.querySelector
 function rankMap(rows,channel){const m=new Map();for(const r of rows.filter(x=>x['订单类型']===channel)){const k=r['商品名称'];m.set(k,(m.get(k)||0)+n(r['商品销量']))}return new Map([...m.entries()].sort((a,b)=>b[1]-a[1]).map((x,i)=>[x[0],i+1]))}
 function calcReport(){
   if(!sourceRows.length)throw new Error('请先上传数据源 CSV');
-  const reg=regions(),prods=products(),channel=$('channel').value;if(!reg.length)throw new Error('数据源中没有可用的三级机构');if(!prods.length)throw new Error('请填写至少一个重点商品');
-  const scoped=sourceRows.filter(r=>reg.includes(r['三级机构']));if(!scoped.length)throw new Error('所选区域在数据源中没有记录');
+  const prods=products(),channel=$('channel').value;if(!prods.length)throw new Error('请填写至少一个重点商品');
+  const clean=cleaningStats(),blocked=prods.filter(p=>clean.excludedNames.has(normalizeProductName(p)));if(blocked.length)throw new Error('重点商品被清洗名单标记为“否”：'+blocked.join('、'));
+  const effectiveRows=sourceRows.filter(r=>!clean.excludedNames.has(normalizeProductName(r['商品名称']))),reg=[...new Set(effectiveRows.map(r=>r['三级机构']).filter(Boolean))];if(!reg.length)throw new Error('清洗后没有可用的三级机构数据');
+  const scoped=effectiveRows.filter(r=>reg.includes(r['三级机构']));if(!scoped.length)throw new Error('清洗后没有可用记录');
   const channelRows=scoped.filter(r=>r['订单类型']===channel),productRows=scoped.filter(r=>prods.includes(r['商品名称'])),productChannel=productRows.filter(r=>r['订单类型']===channel);
   const channelQty=sum(channelRows,'商品销量'),channelGmv=sum(channelRows,'商品销售额'),allQty=sum(scoped,'商品销量'),allGmv=sum(scoped,'商品销售额');
   const productQty=sum(productChannel,'商品销量'),productGmv=sum(productChannel,'商品销售额'),productAllQty=sum(productRows,'商品销量'),productAllGmv=sum(productRows,'商品销售额');
   const rank=rankMap(scoped,channel),targetMetric=$('targetMetric').value,target=n($('targetValue').value)*10000,elapsed=Math.max(1,n($('elapsedDays').value)),days=Math.max(1,n($('targetDays').value));const targetActual={product_qty:productQty,product_gmv:productGmv,channel_qty:channelQty,channel_gmv:channelGmv}[targetMetric]||productQty;
   const items=prods.map(name=>{const all=productRows.filter(r=>r['商品名称']===name),ch=all.filter(r=>r['订单类型']===channel);const aq=sum(all,'商品销量'),ag=sum(all,'商品销售额'),q=sum(ch,'商品销量'),g=sum(ch,'商品销售额');const rep=repurchaseData.get(name);return{name,aq,ag,q,g,qtyShare:div(q,channelQty),gmvShare:div(g,channelGmv),qtyContribution:div(q,aq),gmvContribution:div(g,ag),repurchaseBuyers:rep?.buyers||0,repurchaseCustomers:rep?.repeat||0,repurchaseRate:rep?div(rep.repeat,rep.buyers):null,rank:rank.get(name)||'—'}});
   const storeMap=selectedStoreMap();const areaRows=reg.map(area=>{const ar=scoped.filter(r=>r['三级机构']===area),sel=ar.filter(r=>prods.includes(r['商品名称'])),ch=sel.filter(r=>r['订单类型']===channel),dine=sel.filter(r=>r['订单类型']==='堂食'),allChannel=ar.filter(r=>r['订单类型']===channel),allDine=ar.filter(r=>r['订单类型']==='堂食');const stores=storeMap[area]||0;return{area,stores,cq:sum(ch,'商品销量'),cg:sum(ch,'商品销售额'),cShare:div(sum(ch,'商品销量'),sum(allChannel,'商品销量')),storeAvg:div(sum(ch,'商品销量'),stores),cContribution:div(sum(ch,'商品销量'),sum(sel,'商品销量')),dq:sum(dine,'商品销量'),dg:sum(dine,'商品销售额'),dShare:div(sum(dine,'商品销量'),sum(allDine,'商品销量')),tq:sum(sel,'商品销量'),tg:sum(sel,'商品销售额'),tShare:div(sum(sel,'商品销量'),sum(ar,'商品销量'))}});
-  return{reg,prods,channel,scoped,items,areaRows,channelQty,channelGmv,allQty,allGmv,target,targetMetric,targetActual,targetProgress:div(targetActual,target),timeProgress:elapsed/days,timeDelta:div(targetActual,target)-elapsed/days,elapsed,days,productQty,productGmv,productAllQty,productAllGmv};
+  return{reg,prods,channel,scoped,items,areaRows,channelQty,channelGmv,allQty,allGmv,target,targetMetric,targetActual,targetProgress:div(targetActual,target),timeProgress:elapsed/days,timeDelta:div(targetActual,target)-elapsed/days,elapsed,days,productQty,productGmv,productAllQty,productAllGmv,clean};
 }
 function heatColor(v,min,max){const t=max===min?1:(v-min)/(max-min);const hue=4+116*t;return `hsl(${hue} 58% ${78-16*t}%)`}
 function renderOverall(r){
@@ -276,8 +329,8 @@ function renderRegions(r){
   const totalStores=r.areaRows.reduce((a,x)=>a+x.stores,0),cq=r.areaRows.reduce((a,x)=>a+x.cq,0),cg=r.areaRows.reduce((a,x)=>a+x.cg,0),dq=r.areaRows.reduce((a,x)=>a+x.dq,0),dg=r.areaRows.reduce((a,x)=>a+x.dg,0),tq=r.areaRows.reduce((a,x)=>a+x.tq,0),tg=r.areaRows.reduce((a,x)=>a+x.tg,0);
   $('regionTable').innerHTML=`<table class="data-table"><thead><tr><th rowspan="2">子公司</th><th rowspan="2">门店数</th><th colspan="5" class="group">${r.channel}</th><th colspan="3" class="group">堂食</th><th colspan="3" class="group">汇总</th></tr><tr><th>新品销量</th><th>新品GMV</th><th>销量占比</th><th>店均杯数</th><th>大盘贡献率</th><th>新品销量</th><th>新品GMV</th><th>销量占比</th><th>新品销量</th><th>新品GMV</th><th>销量占比</th></tr></thead><tbody>${body}<tr class="total"><td>合计</td><td>${fmt(totalStores)}</td><td>${wan(cq)}</td><td>${wan(cg)}</td><td>${per(div(cq,r.channelQty))}</td><td>${fmt(div(cq,totalStores))}</td><td>${per(div(cq,r.productAllQty))}</td><td>${wan(dq)}</td><td>${wan(dg)}</td><td>—</td><td>${wan(tq)}</td><td>${wan(tg)}</td><td>${per(div(tq,r.allQty))}</td></tr></tbody></table>`;
 }
-function buildSummary(r){const top=[...r.items].sort((a,b)=>b.q-a.q)[0],best=[...r.areaRows].sort((a,b)=>b.storeAvg-a.storeAvg)[0],metric=r.targetMetric.endsWith('gmv')?'GMV':'销量';return `【${$('dateRange').value||'本期'} ${$('projectName').value}数据】\n数据源范围${r.channel}累计${wan(r.channelQty)}杯、GMV ${wan(r.channelGmv)}，重点商品贡献${wan(r.productQty)}杯、${wan(r.productGmv)}，销量占比${per(div(r.productQty,r.channelQty))}、GMV占比${per(div(r.productGmv,r.channelGmv))}。\n${top?`${top.name}为核心单品，${r.channel}销量${wan(top.q)}杯，占${r.channel}大盘${per(top.qtyShare)}。`:''}${best&&best.stores?`${best.area.replace('大区','')}店均${fmt(best.storeAvg)}杯，区域效率最高。`:''}${top&&top.repurchaseRate!=null?`\n${top.name}三平台加权复购率${per(top.repurchaseRate)}（复购客户${fmt(top.repurchaseCustomers)}人/购买客户${fmt(top.repurchaseBuyers)}人）。`:''}\n${metric}目标进度${per(r.targetProgress)}，时间进度${per(r.timeProgress)}，${r.timeDelta>=0?'超':'落后'}时间进度${Math.abs(r.timeDelta*100).toFixed(2)}个百分点。`;}
-function renderQuality(r){const missing=r.prods.filter(p=>!r.items.find(x=>x.name===p&&(x.aq||x.ag)));const zeroStores=r.areaRows.filter(x=>!x.stores).map(x=>x.area),missingRep=r.prods.filter(p=>!repurchaseData.has(p));$('quality').innerHTML=`<span class="chip good">已读取 ${sourceRows.length.toLocaleString()} 行</span><span class="chip good">${r.reg.length} 个区域</span><span class="chip ${missing.length?'warn':'good'}">${missing.length?missing.length+' 个商品未匹配':'商品全部匹配'}</span><span class="chip ${repurchaseMeta.length===3&&!missingRep.length?'good':'warn'}">${!repurchaseMeta.length?'未上传复购率':missingRep.length?missingRep.length+' 个商品无复购率':'复购率已汇总 3 平台'}</span><span class="chip ${zeroStores.length?'warn':'good'}">${zeroStores.length?'缺少 '+zeroStores.join('、')+' 门店数':'门店数已配置'}</span>`}
+function buildSummary(r){const top=[...r.items].sort((a,b)=>b.q-a.q)[0],best=[...r.areaRows].sort((a,b)=>b.storeAvg-a.storeAvg)[0],metric=r.targetMetric.endsWith('gmv')?'GMV':'销量';return `【${$('dateRange').value||'本期'} ${$('projectName').value}数据】\n数据源范围${r.channel}累计${wan(r.channelQty)}杯、GMV ${wan(r.channelGmv)}，重点商品贡献${wan(r.productQty)}杯、${wan(r.productGmv)}，销量占比${per(div(r.productQty,r.channelQty))}、GMV占比${per(div(r.productGmv,r.channelGmv))}。${r.clean.removedRows?`\n清洗名单已剔除${r.clean.matchedCount}个商品、${r.clean.removedRows.toLocaleString()}行，剔除销量${wan(r.clean.removedQty)}杯、GMV ${wan(r.clean.removedGmv)}。`:''}\n${top?`${top.name}为核心单品，${r.channel}销量${wan(top.q)}杯，占${r.channel}大盘${per(top.qtyShare)}。`:''}${best&&best.stores?`${best.area.replace('大区','')}店均${fmt(best.storeAvg)}杯，区域效率最高。`:''}${top&&top.repurchaseRate!=null?`\n${top.name}三平台加权复购率${per(top.repurchaseRate)}（复购客户${fmt(top.repurchaseCustomers)}人/购买客户${fmt(top.repurchaseBuyers)}人）。`:''}\n${metric}目标进度${per(r.targetProgress)}，时间进度${per(r.timeProgress)}，${r.timeDelta>=0?'超':'落后'}时间进度${Math.abs(r.timeDelta*100).toFixed(2)}个百分点。`;}
+function renderQuality(r){const missing=r.prods.filter(p=>!r.items.find(x=>x.name===p&&(x.aq||x.ag)));const zeroStores=r.areaRows.filter(x=>!x.stores).map(x=>x.area),missingRep=r.prods.filter(p=>!repurchaseData.has(p));$('quality').innerHTML=`<span class="chip good">有效 ${r.scoped.length.toLocaleString()} 行</span><span class="chip ${r.clean.ruleCount?'good':'warn'}">${r.clean.ruleCount?`已清洗：剔除 ${r.clean.removedRows.toLocaleString()} 行`:'未上传清洗名单'}</span><span class="chip good">${r.reg.length} 个区域</span><span class="chip ${missing.length?'warn':'good'}">${missing.length?missing.length+' 个商品未匹配':'商品全部匹配'}</span><span class="chip ${repurchaseMeta.length===3&&!missingRep.length?'good':'warn'}">${!repurchaseMeta.length?'未上传复购率':missingRep.length?missingRep.length+' 个商品无复购率':'复购率已汇总 3 平台'}</span><span class="chip ${zeroStores.length?'warn':'good'}">${zeroStores.length?'缺少 '+zeroStores.join('、')+' 门店数':'门店数已配置'}</span>`}
 function renderReport(r){lastResult=r;$('emptyState').style.display='none';$('report').classList.add('show');$('reportHeading').textContent=$('projectName').value+'数据报告';$('reportMeta').textContent=`${sourceName} · ${r.reg.join(' / ')} · ${r.elapsed}日累计`;$('overallTitle').textContent=`${r.channel}-新品-整体数据（${cnNum(r.elapsed)}日）`;$('regionTitle').textContent=`子公司维度（${cnNum(r.elapsed)}日）`;$('summaryTitle').textContent=`【${$('dateRange').value||'本期'} ${cnNum(r.elapsed)}日新品数据】`;renderOverall(r);renderRegions(r);$('summaryText').textContent=buildSummary(r);renderQuality(r);$('report').scrollIntoView({behavior:'smooth',block:'start'})}
 function cnNum(n){return ({1:'一',2:'二',3:'三',4:'四',5:'五',6:'六',7:'七',8:'八',9:'九',10:'十'})[n]||n}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -304,7 +357,7 @@ function restore(){try{const c=JSON.parse(localStorage.getItem('mnb_auto_report_
 
 $('sourceFile').onchange=e=>e.target.files[0]&&loadFile(e.target.files[0]);
 ['dragenter','dragover'].forEach(x=>$('dropZone').addEventListener(x,e=>{e.preventDefault();$('dropZone').classList.add('over')}));['dragleave','drop'].forEach(x=>$('dropZone').addEventListener(x,e=>{e.preventDefault();$('dropZone').classList.remove('over')}));$('dropZone').addEventListener('drop',e=>e.dataTransfer.files[0]&&loadFile(e.dataTransfer.files[0]));
-$('repurchaseFiles').addEventListener('change',e=>loadRepurchaseFiles(e.target.files));$('dateRange').addEventListener('input',updatePeriod);$('targetMetric').addEventListener('change',updateTargetUnit);$('addProduct').onclick=()=>addProduct();$('pasteProducts').onclick=()=>{const text=prompt('粘贴商品名称，每行一个');if(text)text.split(/\n/).map(x=>x.trim()).filter(Boolean).forEach(addProduct)};$('saveConfig').onclick=saveConfig;$('generate').onclick=()=>{try{renderReport(calcReport())}catch(e){showStatus(e.message,true)}};$('copySummary').onclick=async()=>{const text=$('summaryText').textContent;try{await navigator.clipboard.writeText(text)}catch(e){const area=document.createElement('textarea');area.value=text;document.body.appendChild(area);area.select();document.execCommand('copy');area.remove()}showStatus('汇报总结已复制。')};$('copyTables').onclick=copyTables;$('exportWps').onclick=exportWPS;
+$('repurchaseFiles').addEventListener('change',e=>loadRepurchaseFiles(e.target.files));$('cleaningFile').addEventListener('change',e=>e.target.files[0]&&loadCleaningFile(e.target.files[0]));$('applyCleaning').onclick=()=>{try{parseCleaningRows(cleaningRowsFromText($('cleaningPaste').value),'粘贴名单')}catch(e){$('cleaningState').className='cleaning-state show error';$('cleaningState').textContent='读取失败：'+e.message;showStatus('请检查粘贴内容格式。',true)}};$('clearCleaning').onclick=clearCleaning;$('dateRange').addEventListener('input',updatePeriod);$('targetMetric').addEventListener('change',updateTargetUnit);$('addProduct').onclick=()=>addProduct();$('pasteProducts').onclick=()=>{const text=prompt('粘贴商品名称，每行一个');if(text)text.split(/\n/).map(x=>x.trim()).filter(Boolean).forEach(addProduct)};$('saveConfig').onclick=saveConfig;$('generate').onclick=()=>{try{renderReport(calcReport())}catch(e){showStatus(e.message,true)}};$('copySummary').onclick=async()=>{const text=$('summaryText').textContent;try{await navigator.clipboard.writeText(text)}catch(e){const area=document.createElement('textarea');area.value=text;document.body.appendChild(area);area.select();document.execCommand('copy');area.remove()}showStatus('汇报总结已复制。')};$('copyTables').onclick=copyTables;$('exportWps').onclick=exportWPS;
 $('themeToggle').onclick=()=>{const dark=document.documentElement.dataset.theme==='dark';document.documentElement.dataset.theme=dark?'light':'dark';localStorage.setItem('mnb_theme',dark?'light':'dark');buildAccentGrid();applyAccent(currentAccent,false)};document.documentElement.dataset.theme=localStorage.getItem('mnb_theme')||'light';
 const ACCENTS=[{id:'rose',name:'茶玫',light:'#d94a72',dark:'#f486a6'},{id:'violet',name:'藕紫',light:'#9575cd',dark:'#cbb8e8'},{id:'indigo',name:'靛青',light:'#6c80d6',dark:'#b6c1f0'},{id:'ocean',name:'湖蓝',light:'#3d9bd1',dark:'#a5e0fd'},{id:'teal',name:'黛青',light:'#37ab9d',dark:'#8ff0e0'},{id:'pine',name:'松绿',light:'#54a06a',dark:'#a8f3c4'},{id:'coffee',name:'栗棕',light:'#b57a4d',dark:'#e5c9a9'},{id:'graphite',name:'石墨',light:'#7b8a9e',dark:'#aab6c7'}];
 let currentAccent=localStorage.getItem('mnb_accent')||'rose';if(!ACCENTS.some(a=>a.id===currentAccent))currentAccent='rose';
