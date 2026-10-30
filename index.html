@@ -275,11 +275,23 @@ function parseSummaryMatrix(matrix){
   const rows=[];for(let i=head+2;i<matrix.length;i++){const row=matrix[i]||[],name=String(row[nameIdx]??'').trim();if(!name||name==='合计')continue;const o={'商品名称':name};Object.entries(cols).forEach(([k,c])=>{if(c>=0)o[k]=['qtyShare','qtyGrowth','gmvShare','gmvGrowth','takeRate','margin'].includes(k)?percentValue(row[c]):n(row[c])});if(o.qty||o.gmv||o.receipt||o.gross)rows.push(o)}
   const metaText=matrix.slice(0,head).flat().map(String).join('；'),date=(metaText.match(/日期：([^；]+)/)||[])[1]||'';return{rows,date,cols};
 }
+// Province ownership from 子公司匹配.xlsx. null means the source has no assignment.
+const PROVINCE_SUBSIDIARY={'上海市':'上海','广东省':'广东','广西壮族自治区':'广东','海南省':'广东','四川省':'四川','贵州省':'四川','西藏自治区':'四川','江苏省':'江苏','安徽省':'江苏','浙江省':'浙江','河南省':'河南','山西省':'河南','山东省':'山东','湖北省':'鄂渝','重庆市':'鄂渝','福建省':'福建','江西省':'福建','辽宁省':'东北','黑龙江省':'东北','吉林省':'东北','陕西省':'陕西','新疆维吾尔自治区':'陕西','甘肃省':'陕西','青海省':'陕西','宁夏回族自治区':'陕西','河北省':'北京','内蒙古自治区':'北京','北京市':'北京','天津市':'北京','云南省':null};
+function provinceKey(value){return String(value??'').replace(/\s+/g,'').replace(/(?:壮族自治区|维吾尔自治区|回族自治区|自治区|省|市)$/,'')}
+const SUBSIDIARY_BY_PROVINCE=new Map(Object.entries(PROVINCE_SUBSIDIARY).map(([province,area])=>[provinceKey(province),area]));
+function identifySubsidiary(row){
+  const province=['省份','省','门店省份','所在省份','所属省份'].map(k=>row[k]).find(v=>v!=null&&String(v).trim());
+  const key=provinceKey(province);
+  if(SUBSIDIARY_BY_PROVINCE.has(key)){const area=SUBSIDIARY_BY_PROVINCE.get(key);return area?area+'大区':'未匹配子公司'}
+  const area=row['三级机构']||row['子公司']||row['所属子公司']||row['大区'];
+  if(area&&!/^(?:#N\/A|#NA|未分类|未匹配子公司)$/i.test(String(area).trim()))return String(area).trim().replace(/子公司$/,'大区');
+  return province||area?'未匹配子公司':'';
+}
 function normalizeFlatRows(rows){return rows.map(r=>{const o=Object.fromEntries(Object.entries(r).map(([k,v])=>[headerText(k),typeof v==='string'?v.trim():v]));
   if(!o['商品名称'])o['商品名称']=o['菜品名']??o['菜品名称']??o['商品名'];
   if(o['商品销量']==null&&o['销量']!=null)o['商品销量']=o['销量'];
   if(o['商品销售额']==null){const k=Object.keys(o).find(x=>/^商品营业额|^销售额|^营业额/.test(x));if(k)o['商品销售额']=o[k]}
-  if(!o['三级机构']&&o['子公司'])o['三级机构']=String(o['子公司']).trim().replace(/子公司$/,'大区');
+  const subsidiary=identifySubsidiary(o);if(subsidiary)o['三级机构']=subsidiary;
   if(!o['订单类型']){const channel=o['堂食/外卖/打包']??o['渠道']??o['订单渠道'];if(channel!=null)o['订单类型']=channel;}
   return o}).filter(r=>String(r['商品名称']||'').trim())}
 function workbookSource(wb){
@@ -299,6 +311,7 @@ async function loadFile(file){
     const detectedDates=summary?.date?.match(/\d{4}-\d{1,2}-\d{1,2}/g)||[];if(detectedDates.length){$('dateRange').value=detectedDates.length>1?`${detectedDates[0]}至${detectedDates[1]}`:detectedDates[0];updatePeriod()}
     const available=[sourceCaps.qty?'商品销量、销量占比、商品排名':'',sourceCaps.gmv?'GMV、GMV占比':'',sourceCaps.region&&sourceCaps.channel?'大盘贡献率、子公司和渠道拆分':''].filter(Boolean);
     $('fileState').className='file-state show';$('fileState').textContent=`已读取 ${file.name} · ${sourceRows.length.toLocaleString()} 个商品/记录 · 可生成：${available.join('；')}`;
+    if(rows.some(r=>r['三级机构']==='未匹配子公司'))$('fileState').textContent+='；部分省份未匹配子公司，数据已保留，请核对子公司汇总。';
     if(cleaningRules.size)renderCleaningState();
     showStatus(sourceCaps.region&&sourceCaps.channel?'明细数据已识别，可以生成完整报表。':'汇总数据已识别，将只输出当前字段能够计算的内容。',false);
   }catch(e){sourceRows=[];sourceMode='detail';sourceCaps={};$('fileState').className='file-state show';$('fileState').textContent="读取失败："+e.message;showStatus("请检查文件格式和字段名称。",true)}
