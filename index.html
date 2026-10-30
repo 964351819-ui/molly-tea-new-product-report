@@ -176,7 +176,7 @@
           <div class="target-grid"><div class="target-caption">目标与进度</div><div class="field"><label>累计天数</label><input id="elapsedDays" type="number" min="1" value="1"></div><div class="field"><label>目标指标</label><select id="targetMetric"><option value="product_qty">重点商品销量</option><option value="product_gmv">重点商品GMV</option><option value="channel_qty">渠道总销量</option><option value="channel_gmv">渠道总GMV</option></select></div><div class="field"><label>目标值</label><div class="input-unit"><input id="targetValue" type="number" min="0" step="0.01" value="37.7"><span id="targetUnit">万杯</span></div></div><div class="field"><label>目标天数</label><input id="targetDays" type="number" min="1" value="7"></div></div>
           <div class="field"><label>重点商品（精确匹配）</label><div class="product-list" id="productList"></div><div class="row-actions"><button type="button" id="addProduct">＋ 添加商品</button><button type="button" id="pasteProducts">批量粘贴</button></div></div>
         </div>
-        <details><summary>门店数设置</summary><div class="hint" style="padding:0 17px 10px">源表没有门店 ID 时使用下方门店数；可按项目更新。</div><div class="store-grid" id="storeGrid"></div></details>
+        <details><summary>门店数设置</summary><div class="hint" style="padding:0 17px 10px">报表门店数直接使用下方填写值；店均杯数与合计同步计算，可按项目更新。</div><div class="store-grid" id="storeGrid"></div></details>
       </section>
       <div class="status" id="status"></div>
       <button class="primary big" id="generate" type="button">生成标准报表</button>
@@ -237,7 +237,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 </script>
 <script>
 const $=id=>document.getElementById(id);
-const STORE_DEFAULTS={"北京大区":196,"东北大区":110,"鄂渝大区":189,"福建大区":189,"广东大区":496,"河南大区":150,"江苏大区":305,"上海大区":166,"山东大区":130,"陕西大区":152,"四川大区":296,"浙江大区":305};
+const STORE_DEFAULTS={"北京大区":216,"东北大区":130,"鄂渝大区":194,"福建大区":196,"广东大区":530,"河南大区":161,"江苏大区":318,"上海大区":165,"山东大区":138,"陕西大区":159,"四川大区":309,"浙江大区":328};
 const CONFIG_KEY='mnb_auto_report_v2';
 let sourceRows=[],sourceName="",sourceMode="detail",sourceMeta={},sourceCaps={},lastResult=null,repurchaseData=new Map(),repurchaseMeta=[],cleaningRules=new Map(),cleaningSource="";
 
@@ -399,7 +399,8 @@ const wan=v=>Math.abs(v)>=10000?`${fmt(v/10000,1)}万`:fmt(v);
 const per=v=>Number.isFinite(v)?`${(v*100).toFixed(2)}%`:'—';
 const div=(a,b)=>b?a/b:0;
 function groupBy(rows,key){const m=new Map();rows.forEach(r=>{const k=r[key]||'未分类';if(!m.has(k))m.set(k,[]);m.get(k).push(r)});return m}
-function selectedStoreMap(){return Object.fromEntries([...document.querySelectorAll('#storeGrid input')].map(i=>[i.dataset.region,n(i.value)]))}
+function storeRegionKey(value){return String(value??'').replace(/\s+/g,'').replace(/(?:大区|子公司|分公司)$/,'')}
+function selectedStoreMap(){const map={};document.querySelectorAll('#storeGrid input').forEach(i=>{const count=n(i.value);map[i.dataset.region]=count;map[storeRegionKey(i.dataset.region)]=count});return map}
 function rankMap(rows,channel){const m=new Map();for(const r of rows.filter(x=>x['订单类型']===channel)){const k=r['商品名称'];m.set(k,(m.get(k)||0)+n(r['商品销量']))}return new Map([...m.entries()].sort((a,b)=>b[1]-a[1]).map((x,i)=>[x[0],i+1]))}
 function calcFlexibleReport(){
   const clean=cleaningStats(),effective=sourceRows.filter(r=>!clean.excludedNames.has(normalizeProductName(r['商品名称']))),requested=products(),blocked=requested.filter(p=>clean.excludedNames.has(p));if(blocked.length)throw new Error('重点商品被清洗名单标记为“否”：'+blocked.join('、'));
@@ -423,7 +424,7 @@ function calcReport(){
   const productQty=sum(productChannel,'商品销量'),productGmv=sum(productChannel,'商品销售额'),productAllQty=sum(productRows,'商品销量'),productAllGmv=sum(productRows,'商品销售额');
   const rank=rankMap(scoped,channel),targetMetric=$('targetMetric').value,target=n($('targetValue').value)*10000,elapsed=Math.max(1,n($('elapsedDays').value)),days=Math.max(1,n($('targetDays').value));const targetActual={product_qty:productQty,product_gmv:productGmv,channel_qty:channelQty,channel_gmv:channelGmv}[targetMetric]??0;
   const items=prods.map(name=>{const all=productRows.filter(r=>r['商品名称']===name),ch=all.filter(r=>r['订单类型']===channel);const aq=sum(all,'商品销量'),ag=sum(all,'商品销售额'),q=sum(ch,'商品销量'),g=sum(ch,'商品销售额');const rep=repurchaseData.get(name);return{name,aq,ag,q,g,qtyShare:div(q,channelQty),gmvShare:div(g,channelGmv),qtyContribution:div(q,aq),gmvContribution:div(g,ag),repurchaseBuyers:rep?.buyers||0,repurchaseCustomers:rep?.repeat||0,repurchaseRate:rep?div(rep.repeat,rep.buyers):null,rank:rank.get(name)||'—'}});
-  const storeMap=selectedStoreMap();const areaRows=reg.map(area=>{const ar=scoped.filter(r=>r['三级机构']===area),sel=ar.filter(r=>prods.includes(r['商品名称'])),ch=sel.filter(r=>r['订单类型']===channel),dine=sel.filter(r=>['堂食','打包'].includes(r['订单类型'])),allChannel=ar.filter(r=>r['订单类型']===channel),allDine=ar.filter(r=>['堂食','打包'].includes(r['订单类型']));const stores=storeMap[area]||0;return{area,stores,cq:sum(ch,'商品销量'),cg:sum(ch,'商品销售额'),cShare:div(sum(ch,'商品销量'),sum(allChannel,'商品销量')),storeAvg:div(sum(ch,'商品销量'),stores),cContribution:div(sum(ch,'商品销量'),sum(sel,'商品销量')),dq:sum(dine,'商品销量'),dg:sum(dine,'商品销售额'),dShare:div(sum(dine,'商品销量'),sum(allDine,'商品销量')),tq:sum(sel,'商品销量'),tg:sum(sel,'商品销售额'),tShare:div(sum(sel,'商品销量'),sum(ar,'商品销量'))}}).sort((a,b)=>b.cShare-a.cShare||b.cq-a.cq||a.area.localeCompare(b.area,'zh-CN'));
+  const storeMap=selectedStoreMap();const areaRows=reg.map(area=>{const ar=scoped.filter(r=>r['三级机构']===area),sel=ar.filter(r=>prods.includes(r['商品名称'])),ch=sel.filter(r=>r['订单类型']===channel),dine=sel.filter(r=>['堂食','打包'].includes(r['订单类型'])),allChannel=ar.filter(r=>r['订单类型']===channel),allDine=ar.filter(r=>['堂食','打包'].includes(r['订单类型']));const stores=storeMap[storeRegionKey(area)]??0;return{area,stores,cq:sum(ch,'商品销量'),cg:sum(ch,'商品销售额'),cShare:div(sum(ch,'商品销量'),sum(allChannel,'商品销量')),storeAvg:div(sum(ch,'商品销量'),stores),cContribution:div(sum(ch,'商品销量'),sum(sel,'商品销量')),dq:sum(dine,'商品销量'),dg:sum(dine,'商品销售额'),dShare:div(sum(dine,'商品销量'),sum(allDine,'商品销量')),tq:sum(sel,'商品销量'),tg:sum(sel,'商品销售额'),tShare:div(sum(sel,'商品销量'),sum(ar,'商品销量'))}}).sort((a,b)=>b.cShare-a.cShare||b.cq-a.cq||a.area.localeCompare(b.area,'zh-CN'));
   return{reg,prods,channel,scoped,items,areaRows,channelQty,channelGmv,allQty,allGmv,dineAllQty,target,targetMetric,targetActual,targetProgress:div(targetActual,target),timeProgress:elapsed/days,timeDelta:div(targetActual,target)-elapsed/days,elapsed,days,productQty,productGmv,productAllQty,productAllGmv,clean};
 }
 function repurchasePlatform(rep,keyword){
