@@ -278,8 +278,8 @@ function parseSummaryMatrix(matrix){
   const rows=[];for(let i=head+2;i<matrix.length;i++){const row=matrix[i]||[],name=normalizeProductName(row[nameIdx]);if(!name||name==='合计')continue;const o={'商品名称':name};Object.entries(cols).forEach(([k,c])=>{if(c>=0)o[k]=['qtyShare','qtyGrowth','gmvShare','gmvGrowth','takeRate','margin'].includes(k)?percentValue(row[c]):n(row[c])});if(o.qty||o.gmv||o.receipt||o.gross)rows.push(o)}
   const metaText=matrix.slice(0,head).flat().map(String).join('；'),date=(metaText.match(/日期：([^；]+)/)||[])[1]||'';return{rows,date,cols};
 }
-// Province ownership from 子公司匹配.xlsx. null means the source has no assignment.
-const PROVINCE_SUBSIDIARY={'上海市':'上海','广东省':'广东','广西壮族自治区':'广东','海南省':'广东','四川省':'四川','贵州省':'四川','西藏自治区':'四川','江苏省':'江苏','安徽省':'江苏','浙江省':'浙江','河南省':'河南','山西省':'河南','山东省':'山东','湖北省':'鄂渝','重庆市':'鄂渝','福建省':'福建','江西省':'福建','辽宁省':'东北','黑龙江省':'东北','吉林省':'东北','陕西省':'陕西','新疆维吾尔自治区':'陕西','甘肃省':'陕西','青海省':'陕西','宁夏回族自治区':'陕西','河北省':'北京','内蒙古自治区':'北京','北京市':'北京','天津市':'北京','云南省':null};
+// Province ownership from 子公司匹配.xlsx, with user-confirmed Yunnan -> Sichuan override.
+const PROVINCE_SUBSIDIARY={'上海市':'上海','广东省':'广东','广西壮族自治区':'广东','海南省':'广东','四川省':'四川','贵州省':'四川','西藏自治区':'四川','江苏省':'江苏','安徽省':'江苏','浙江省':'浙江','河南省':'河南','山西省':'河南','山东省':'山东','湖北省':'鄂渝','重庆市':'鄂渝','福建省':'福建','江西省':'福建','辽宁省':'东北','黑龙江省':'东北','吉林省':'东北','陕西省':'陕西','新疆维吾尔自治区':'陕西','甘肃省':'陕西','青海省':'陕西','宁夏回族自治区':'陕西','河北省':'北京','内蒙古自治区':'北京','北京市':'北京','天津市':'北京','云南省':'四川'};
 function provinceKey(value){return String(value??'').replace(/\s+/g,'').replace(/(?:壮族自治区|维吾尔自治区|回族自治区|自治区|省|市)$/,'')}
 const SUBSIDIARY_BY_PROVINCE=new Map(Object.entries(PROVINCE_SUBSIDIARY).map(([province,area])=>[provinceKey(province),area]));
 function identifySubsidiary(row){
