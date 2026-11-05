@@ -96,5 +96,13 @@ run('loadRepurchaseFiles(repFiles)').then(()=>{
   assert.equal(run("repurchaseData.get('茉莉与可可').buyers"),450);
   assert.equal(run("repurchaseData.get('茉莉与可可').platforms['美团'].buyers"),150);
   assert.equal(run('repurchaseOnlyResult().rows[0].name'),'茉莉与可可');
+  productInputs.splice(0,productInputs.length,{value:'茉莉熔岩榛巧Pro'},{value:'茉莉熔岩榛巧PRO'});
+  assert.equal(run('products().length'),1);
+  run("repurchaseData=new Map([[productMatchKey('茉莉熔岩榛巧pro'),{name:'茉莉熔岩榛巧pro',buyers:350791,repeat:21159,platforms:{}}]]);sourceRows=normalizeFlatRows([{'省份':'四川省','商品名称':'茉莉熔岩榛巧Pro','订单类型':'外卖','商品销量':10,'商品销售额':100},{'省份':'云南省','商品名称':'茉莉熔岩榛巧pro','订单类型':'外卖','商品销量':20,'商品销售额':200}]);cleaningRules=new Map();sourceMode='detail';sourceCaps={region:true,channel:true,qty:true,gmv:true}");
+  const caseReport=run('calcReport()');assert.equal(caseReport.items.length,1);assert.equal(caseReport.items[0].q,30);assert.equal(caseReport.items[0].name,'茉莉熔岩榛巧Pro');assert.equal(caseReport.items[0].rank,1);assert.equal((caseReport.items[0].repurchaseRate*100).toFixed(2),'6.03');
+  assert.equal(run('repurchaseOnlyResult().rows[0].name'),'茉莉熔岩榛巧Pro');
+  run("sourceMode='flat'");const flatCase=run('calcReport()');assert.equal(flatCase.items.length,1);assert.equal(flatCase.items[0].q,30);assert.equal((flatCase.items[0].repurchaseRate*100).toFixed(2),'6.03');
+  assert.throws(()=>run("parseCleaningRows([['商品名称','是否保留'],['茉莉熔岩榛巧Pro','否'],['茉莉熔岩榛巧pro','是']],'测试')"),/同时标记/);
+  console.log('PASS: case-insensitive detail, flat, repurchase lookup, rank and deduplication; original display name preserved');
   console.log('PASS: backticks removed across source, focus products, summary, cleaning and repurchase; quantities and platform totals merge correctly');
 }).catch(error=>{console.error(error);process.exitCode=1});
