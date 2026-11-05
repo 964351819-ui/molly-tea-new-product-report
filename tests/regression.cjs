@@ -66,6 +66,21 @@ assert.equal(run("parseSummaryMatrix([['商品名称','销量'],['','当前值']
 run('renderCleaningState=()=>{};showStatus=()=>{}');
 assert.equal(run("parseCleaningRows([['商品名称','是否保留'],['`茉莉与可可','否']],'测试');cleaningRules.has('茉莉与可可')"),true);
 ctx.repFiles=['美团','淘宝闪购','京东外卖'].map(platform=>({name:platform,arrayBuffer:async()=>platform}));
+assert.equal(run('DEFAULT_EXCLUDED_CATEGORIES.length'),21);
+assert.equal(run("excludedCategory({'商品分类':'文创周边,热饮推荐'})"),'文创周边');
+assert.equal(run("excludedCategory({'商品分类':'云南限定,精品栀子'})"),'');
+productInputs.splice(0,productInputs.length,{value:'A'});
+run("cleaningRules=new Map();sourceRows=normalizeFlatRows([{'省份':'江苏省','商品名称':'A','商品分类':'好茶上新','订单类型':'外卖','商品销量':10,'商品销售额':100},{'省份':'江苏省','商品名称':'A','商品分类':'文创周边','订单类型':'外卖','商品销量':50,'商品销售额':500},{'省份':'江苏省','商品名称':'B','商品分类':'热饮推荐','订单类型':'外卖','商品销量':10,'商品销售额':100},{'省份':'云南省','商品名称':'C','商品分类':'配送费','订单类型':'外卖','商品销量':30,'商品销售额':300}]);sourceMode='detail'");
+const categoryClean=run('calcReport()');
+assert.equal(categoryClean.productQty,10);assert.equal(categoryClean.channelQty,20);
+assert.equal(categoryClean.items[0].qtyShare,.5);assert.equal(categoryClean.items[0].gmvShare,.5);
+assert.equal(categoryClean.clean.removedRows,2);assert.equal(categoryClean.reg.length,1);
+productInputs.splice(0,productInputs.length);assert.equal(run('calcReport().items.length'),2);
+run("sourceMode='flat';sourceCaps={qty:true,gmv:true};sourceRows=normalizeFlatRows([{'商品名称':'A','商品分类':'热饮推荐','商品销量':10,'商品销售额':100},{'商品名称':'B','商品分类':'包装费','商品销量':90,'商品销售额':900}])");
+assert.equal(run('calcReport().channelQty'),10);assert.equal(run('calcReport().items[0].qtyShare'),1);
+// Restore the requested product for the independent repurchase test below.
+productInputs.push({value:'茉莉与可可'});
+console.log('PASS: default category filtering is row-based; multi-label exact match; all-products mode; cleaned detail and flat denominators');
 nodes.repurchaseState={};
 ctx.XLSX={read:platform=>({SheetNames:['Sheet1'],Sheets:{Sheet1:{platform}}}),utils:{sheet_to_json:ws=>[[''],['平台：【'+ws.platform+'】；日期：2026-11-02'],[],[],['`茉莉与可可',100,0,0,0,0,0,0,0,10],['茉莉与可可',50,0,0,0,0,0,0,0,5]]}};
 run('showStatus=()=>{};fixSheetRef=ws=>ws');

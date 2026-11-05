@@ -154,13 +154,13 @@
             <div class="repurchase-note">汇总复购率＝三平台复购客户数合计 ÷ 三平台购买客户数合计；跨平台重复用户因无统一用户标识无法去重。</div>
           </div>
           <div class="cleaning-box">
-            <div class="repurchase-title"><strong>商品清洗名单</strong><span class="optional">建议上传</span></div>
-            <p class="repurchase-desc">上传或粘贴“商品名称、是否保留”两列；标记为“否”的商品将先剔除，再参与全部指标计算。</p>
+            <div class="repurchase-title"><strong>商品清洗名单</strong><span class="optional">默认启用</span></div>
+            <p class="repurchase-desc">默认按商品分类剔除所选的 21 类数据，无需上传名单；所有指标、排名和占比均在清洗后计算。下方可追加商品名称名单。</p><details><summary>查看默认剔除分类</summary><p class="repurchase-desc" id="defaultCategoryList"></p></details>
             <label class="repurchase-upload">上传清洗名单<input id="cleaningFile" type="file" accept=".xlsx,.xls,.csv,.txt,text/csv,text/plain" hidden></label>
             <textarea id="cleaningPaste" class="cleaning-paste" placeholder="商品名称&#9;是否保留&#10;加寒天&#9;否&#10;针王苹果&#9;是"></textarea>
-            <div class="cleaning-actions"><button id="applyCleaning" type="button">应用粘贴名单</button><button id="clearCleaning" type="button">清空</button></div>
+            <div class="cleaning-actions"><button id="applyCleaning" type="button">应用粘贴名单</button><button id="clearCleaning" type="button">清空追加名单</button></div>
             <div class="cleaning-state" id="cleaningState"></div>
-            <div class="repurchase-note">仅“否”会被排除；“是”和名单外商品默认保留。商品名称按去除首尾空格后精确匹配。</div>
+            <div class="repurchase-note">追加名单中“否”会排除整个商品；“是”不会恢复默认分类已剔除的数据。分类按逗号分隔的标签精确匹配，任一标签在默认名单中即剔除该行。商品名称按去除首尾空格后精确匹配。</div>
           </div>
         </div>
       </section>
@@ -187,7 +187,7 @@
       <div class="report" id="report">
         <div class="report-toolbar"><div><h2 id="reportHeading">项目数据报告</h2><div class="hint" id="reportMeta"></div></div><div class="toolbar-actions"><button id="copySummary">复制总结</button><button id="copyTables">复制两张表格</button><button id="exportWps">导出 WPS 表格</button></div></div>
         <div class="quality" id="quality"></div>
-        <div class="definition" id="reportDefinition"><h3>名词规范</h3><p><b>1、销量占比：</b>某一款产品在所选渠道的销量 ÷ 所选区域该渠道全部商品销量。</p><p><b>2、GMV占比：</b>某一款产品在所选渠道的GMV ÷ 所选区域该渠道全部商品GMV。</p><p><b>3、大盘贡献率：</b>某一款产品所选渠道销量（或GMV）÷ 该产品全渠道销量（或GMV）。</p><p><b>4、清洗口径：</b>所有指标均先剔除清洗名单中“是否保留=否”的商品，再计算分子、分母、排名及区域数据。</p></div>
+        <div class="definition" id="reportDefinition"><h3>名词规范</h3><p><b>1、销量占比：</b>某一款产品在所选渠道的销量 ÷ 所选区域该渠道全部商品销量。</p><p><b>2、GMV占比：</b>某一款产品在所选渠道的GMV ÷ 所选区域该渠道全部商品GMV。</p><p><b>3、大盘贡献率：</b>某一款产品所选渠道销量（或GMV）÷ 该产品全渠道销量（或GMV）。</p><p><b>4、清洗口径：</b>所有指标均先剔除默认分类与追加名单中标记为否的商品，再计算分子、分母、排名及区域数据。</p></div>
         <div class="sheet" id="overallSheet"><div class="sheet-title" id="overallTitle"></div><div class="table-wrap" id="overallTable"></div><div class="summary-box"><div class="summary-title" id="summaryTitle"></div><div class="summary-text" id="summaryText"></div></div></div>
         <div class="sheet" id="regionSheet"><div class="sheet-title" id="regionTitle"></div><div class="table-wrap" id="regionTable"></div></div>
         <div class="footnote" id="reportFootnote">说明：复购率因当前源表不含用户/订单标识，统一显示“—”；商品排名按所选区域、所选渠道、全部商品销量计算。WPS 导出为多工作表 XML 格式，可直接用 WPS/Excel 打开。</div>
@@ -203,10 +203,10 @@
       <main class="manual-content">
         <section class="manual-section" id="manual-start"><h3>1. 快速上手</h3><p>01 上传 CSV / XLSX / XLS → 02 确认统计日期、渠道、重点商品与目标 → 03 生成、核对并导出。文件仅在本机浏览器处理。</p><p>完整渠道明细生成整体表、子公司表与三段总结；汇总文件只生成具备数据的原报表指标。也可仅上传三平台复购文件生成独立复购汇总。</p></section>
         <section class="manual-section" id="manual-source"><h3>2. 数据源与字段</h3><p>支持普通单行表头与“菜品销量分析”多层表头。按工作表顺序查找可识别的商品表，不自动拼接多个工作表。</p><p>等价字段：子公司 / 三级机构；堂食/外卖/打包 / 订单类型 / 订单渠道 / 渠道；商品名称 / 菜品名 / 菜品名称 / 商品名；销量 / 商品销量；商品营业额 / 商品销售额 / 销售额。</p><p>至少需要商品名称及销量或销售额。缺少子公司、渠道或金额字段时进入简化汇总模式；不新增同期、实收、毛利等指标。多层汇总表中的占比会按清洗后的当前商品数据重算。</p></section>
-        <section class="manual-section" id="manual-cleaning"><h3>3. 商品清洗名单</h3><p>当源表包含加料、规格、历史下架品等脏数据时，可先上传或粘贴清洗名单。系统会剔除标记为“否”的商品，再计算所有报表指标，避免分母被脏数据放大。</p><div class="manual-tablewrap"><table class="manual-table"><thead><tr><th>商品名称</th><th>是否保留</th><th>处理结果</th></tr></thead><tbody><tr><td>加寒天</td><td>否</td><td>从全部计算中剔除</td></tr><tr><td>针王苹果</td><td>是</td><td>正常保留</td></tr><tr><td>名单外商品</td><td>—</td><td>默认保留</td></tr></tbody></table></div><ul><li><b>支持方式：</b>上传 XLSX、XLS、CSV、TXT，或把两列表格直接粘贴到输入框后点击“应用粘贴名单”。</li><li><b>字段要求：</b>必须包含“商品名称”和“是否保留”两列；只有“否”会被排除。</li><li><b>匹配规则：</b>商品名称去除首尾空格后精确匹配，不做模糊识别。</li><li><b>计算范围：</b>销量、GMV、占比、贡献率、商品排名、子公司数据、店均和目标进度，均使用清洗后的数据。</li><li><b>结果核对：</b>应用后查看已读取规则、排除商品、匹配商品和剔除行数；生成报表后再次核对质量提示与总结。</li></ul><div class="manual-callout"><b>注意：</b>同一商品同时标记“是”和“否”会提示名单冲突；重点商品若被标记为“否”，系统会停止生成并提示修改。</div></section>
+        <section class="manual-section" id="manual-cleaning"><h3>3. 商品清洗</h3><p>默认按左侧列出的21个分类逐行剔除。下述名单是追加规则，不用每次上传；标记为是不会恢复默认分类已剔除的行，名单外商品仍需通过默认分类清洗。</p><p>当源表包含加料、规格、历史下架品等脏数据时，可先上传或粘贴清洗名单。系统会剔除标记为“否”的商品，再计算所有报表指标，避免分母被脏数据放大。</p><div class="manual-tablewrap"><table class="manual-table"><thead><tr><th>商品名称</th><th>是否保留</th><th>处理结果</th></tr></thead><tbody><tr><td>加寒天</td><td>否</td><td>从全部计算中剔除</td></tr><tr><td>针王苹果</td><td>是</td><td>通过默认分类清洗后保留</td></tr><tr><td>名单外商品</td><td>—</td><td>通过默认分类清洗后保留</td></tr></tbody></table></div><ul><li><b>支持方式：</b>上传 XLSX、XLS、CSV、TXT，或把两列表格直接粘贴到输入框后点击“应用粘贴名单”。</li><li><b>字段要求：</b>必须包含“商品名称”和“是否保留”两列；追加名单中只有“否”会排除整个商品。</li><li><b>匹配规则：</b>商品名称去除首尾空格后精确匹配，不做模糊识别。</li><li><b>计算范围：</b>销量、GMV、占比、贡献率、商品排名、子公司数据、店均和目标进度，均使用清洗后的数据。</li><li><b>结果核对：</b>应用后查看已读取规则、排除商品、匹配商品和剔除行数；生成报表后再次核对质量提示与总结。</li></ul><div class="manual-callout"><b>注意：</b>同一商品同时标记“是”和“否”会提示名单冲突；重点商品若被标记为“否”，系统会停止生成并提示修改。</div></section>
         <section class="manual-section" id="manual-config"><h3>4. 项目配置</h3><p>日期范围支持 2026-09-17、2026-09-17至2026-09-19、9.17-9.19，自动生成星期。源表包含统计日期时会回填；文件名中的下载日期不作为统计日期。累计天数需手动核对，1 天显示“首日”。</p><p>商品名称在源数据、重点商品、清洗名单和复购文件中统一剔除反引号并去除首尾空格，再精确匹配；输出不带反引号，同名数据合并。重点商品；留空显示全部保留商品。目标指标可选重点商品或渠道总量，目标销量填万杯，GMV 填万元。目标进度与时间进度分别使用目标值、目标天数计算。</p><p>门店数采用当前设置，包括山东；店均是累计杯数除以门店数，不是日均。项目名称、重点商品、累计天数、目标值、目标天数和门店数修改后自动保存，清空也会记住；点击“保存配置”还可保存全部项目、门店数和筛选设置；原始文件与清洗名单刷新后需要重新上传。</p></section>
         <section class="manual-section" id="manual-metric"><h3>5. 核心口径</h3><p>商品销量占比＝商品所选渠道销量 ÷ 全部保留商品该渠道销量。商品 GMV 占比同理。</p><p>大盘贡献率＝重点商品所选渠道销量（GMV）÷ 同一批商品全渠道销量（GMV）。分母不是所有商品。</p><p>子公司表的“堂食+打包”同时合并两类订单；汇总包含全部渠道。按所选渠道销量占比降序，占比相同按销量降序，合计固定在末行。</p><p>商品排名：在全部保留商品中按所选渠道销量降序排列；清洗名单会影响排名，重点商品筛选不缩小排名范围。相同销量目前依原始顺序逐一编号。</p><p>目标进度＝实际值 ÷ 目标值；时间进度＝累计天数 ÷ 目标天数；超时间进度＝两者之差，差值单位为百分点。</p><p>复购率＝三平台复购客户数之和 ÷ 购买客户数之和，不是平均百分比。三份文件必须来自美团、淘宝闪购、京东且日期一致。跨平台、跨商品重复用户无法去重；多商品总结为客户次数加权值。复购日期需与本期人工核对。</p></section>
-        <section class="manual-section" id="manual-output"><h3>6. 预览、复制与导出</h3><p>整体表沿用约定指标；子公司表只在完整渠道明细下显示。日期、周期、目标进度、超时间进度按当前配置计算。</p><p>总结按“核心指标 / 区域概述 / 目标进度”生成；缺少区域数据时省略对应段落。区域效率取有效门店数区域的最高店均。</p><p>复制表格保留表头与合计样式。完整明细导出为兼容 Excel / WPS 的 XML .xls；简化汇总与独立复购导出 .xlsx。汇总导出保留数值精度，页面使用万单位便于阅读。</p><p>修改配置或数据后需重新生成，避免复制旧结果。表格可横向滚动；小屏设备配置区移到报表上方。</p></section>
+        <section class="manual-section" id="manual-output"><h3>6. 预览、复制与导出</h3><p>默认分类清洗始终启用：按商品分类或菜品分类剔除左侧列出的21类记录，无需上传名单。多标签按逗号分隔并精确匹配任一标签；按行剔除，不连带删除相同商品的其他有效记录。追加名单中的否会再排除整个商品，清空追加名单不关闭默认清洗。缺少分类字段时无法执行分类清洗并会提示。所有表格、排名、占比分母和导出均采用清洗后数据。</p><p>整体表沿用约定指标；子公司表只在完整渠道明细下显示。日期、周期、目标进度、超时间进度按当前配置计算。</p><p>总结按“核心指标 / 区域概述 / 目标进度”生成；缺少区域数据时省略对应段落。区域效率取有效门店数区域的最高店均。</p><p>复制表格保留表头与合计样式。完整明细导出为兼容 Excel / WPS 的 XML .xls；简化汇总与独立复购导出 .xlsx。汇总导出保留数值精度，页面使用万单位便于阅读。</p><p>修改配置或数据后需重新生成，避免复制旧结果。表格可横向滚动；小屏设备配置区移到报表上方。</p></section>
         <section class="manual-section" id="manual-check"><h3>7. 排错与使用提醒</h3><p>读取失败：检查是否为原始业务导出文件、工作表内是否包含可识别表头；不要将本工具导出的报告当作源明细重新上传。</p><p>商品未匹配：检查完整名称、套餐后缀和清洗名单。排名不同：检查订单口径、文件统计范围与清洗名单。没有子公司表：检查区域、渠道、销量、金额字段是否齐全。</p><p>无门店数的区域不参与效率最高比较，请补全门店数。复购文件需一次选择三份不同平台且同一统计日期的文件。</p><p>目标值必须大于 0，累计天数和目标天数为正整数。说明书中的口径适用于当前版本；配置保存在当前浏览器，换设备不会同步。</p></section>
       </main>
     </div>
@@ -239,6 +239,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 const $=id=>document.getElementById(id);
 const STORE_DEFAULTS={"北京大区":216,"东北大区":130,"鄂渝大区":194,"福建大区":196,"广东大区":530,"河南大区":161,"江苏大区":318,"上海大区":165,"山东大区":138,"陕西大区":159,"四川大区":309,"浙江大区":328};
 const CONFIG_KEY='mnb_auto_report_v2';
+const DEFAULT_EXCLUDED_CATEGORIES=['安佳云顶','包装费','保温袋','北京限定','富贵开心果-冰淇淋','加料','加料区','开早测试','茉莉小零嘴','配送费','生日专区','双杯/2选1团购','苏皖300店庆','苏皖限定','停售饮品','未关联商品分类','温馨提示','文创周边','现烤脆壳挞','限定蛋糕','周边套餐'];
+const excludedCategorySet=new Set(DEFAULT_EXCLUDED_CATEGORIES);
+function excludedCategory(row){return String(row['商品分类']??row['菜品分类']??'').trim().split(/[,，]/).map(x=>x.trim()).find(x=>excludedCategorySet.has(x))||''}
 let sourceRows=[],sourceName="",sourceMode="detail",sourceMeta={},sourceCaps={},lastResult=null,repurchaseData=new Map(),repurchaseMeta=[],cleaningRules=new Map(),cleaningSource="";
 
 function parseCSV(text){
@@ -311,8 +314,8 @@ async function loadFile(file){
     const detectedDates=summary?.date?.match(/\d{4}-\d{1,2}-\d{1,2}/g)||[];if(detectedDates.length){$('dateRange').value=detectedDates.length>1?`${detectedDates[0]}至${detectedDates[1]}`:detectedDates[0];updatePeriod()}
     const available=[sourceCaps.qty?'商品销量、销量占比、商品排名':'',sourceCaps.gmv?'GMV、GMV占比':'',sourceCaps.region&&sourceCaps.channel?'大盘贡献率、子公司和渠道拆分':''].filter(Boolean);
     $('fileState').className='file-state show';$('fileState').textContent=`已读取 ${file.name} · ${sourceRows.length.toLocaleString()} 个商品/记录 · 可生成：${available.join('；')}`;
-    if(rows.some(r=>r['三级机构']==='未匹配子公司'))$('fileState').textContent+='；部分省份未匹配子公司，数据已保留，请核对子公司汇总。';
-    if(cleaningRules.size)renderCleaningState();
+    const unmatchedProvinces=[...new Set(rows.filter(r=>r['三级机构']==='未匹配子公司').map(r=>r['省份']||r['省']||r['门店省份']||r['所在省份']||r['所属省份']||'省份缺失'))];if(unmatchedProvinces.length)$('fileState').textContent+='；未匹配子公司：'+unmatchedProvinces.join('、')+'，数据已保留。';
+    renderCleaningState();
     showStatus(sourceCaps.region&&sourceCaps.channel?'明细数据已识别，可以生成完整报表。':'汇总数据已识别，将只输出当前字段能够计算的内容。',false);
   }catch(e){sourceRows=[];sourceMode='detail';sourceCaps={};$('fileState').className='file-state show';$('fileState').textContent="读取失败："+e.message;showStatus("请检查文件格式和字段名称。",true)}
 }
@@ -376,14 +379,17 @@ async function loadCleaningFile(file){
   }catch(e){cleaningRules=new Map();cleaningSource='';state.className='cleaning-state show error';state.textContent='读取失败：'+e.message;showStatus('请检查清洗名单格式。',true)}
 }
 function cleaningStats(rows=sourceRows){
-  const excludedNames=new Set([...cleaningRules].filter(([,v])=>v==='否').map(([k])=>k)),removed=rows.filter(r=>excludedNames.has(normalizeProductName(r['商品名称']))),matched=new Set(removed.map(r=>normalizeProductName(r['商品名称'])));
-  return{ruleCount:cleaningRules.size,excludedCount:excludedNames.size,matchedCount:matched.size,removedRows:removed.length,removedQty:sum(removed,'商品销量'),removedGmv:sum(removed,'商品销售额'),excludedNames};
+  const excludedNames=new Set([...cleaningRules].filter(([,v])=>v==='否').map(([k])=>k));
+  const isExcluded=row=>!!excludedCategory(row)||excludedNames.has(normalizeProductName(row['商品名称']));
+  const removed=rows.filter(isExcluded),matched=new Set(removed.map(r=>normalizeProductName(r['商品名称'])));
+  const retainedNames=new Set(rows.filter(r=>!isExcluded(r)).map(r=>normalizeProductName(r['商品名称'])));
+  matched.forEach(name=>{if(!retainedNames.has(name))excludedNames.add(name)});
+  return{ruleCount:DEFAULT_EXCLUDED_CATEGORIES.length+cleaningRules.size,excludedCount:excludedNames.size,matchedCount:matched.size,removedRows:removed.length,removedQty:sum(removed,'商品销量'),removedGmv:sum(removed,'商品销售额'),excludedNames,isExcluded,categoryRemovedRows:rows.filter(r=>!!excludedCategory(r)).length};
 }
 function renderCleaningState(){
-  const state=$('cleaningState');if(!cleaningRules.size){state.className='cleaning-state';state.textContent='';return}
-  const x=cleaningStats();state.className='cleaning-state show';state.innerHTML=`已应用 ${escapeHtml(cleaningSource)} · ${x.ruleCount.toLocaleString()} 个商品<div class="cleaning-metrics"><span class="cleaning-metric">排除 ${x.excludedCount} 个</span><span class="cleaning-metric">匹配 ${x.matchedCount} 个</span><span class="cleaning-metric">剔除 ${x.removedRows.toLocaleString()} 行</span></div>`;
+  const state=$('cleaningState'),x=cleaningStats();state.className='cleaning-state show';state.innerHTML=`默认分类清洗已启用 · ${DEFAULT_EXCLUDED_CATEGORIES.length} 类${cleaningRules.size?'；追加商品名单：'+escapeHtml(cleaningSource):''}<div class="cleaning-metrics"><span class="cleaning-metric">分类剔除 ${x.categoryRemovedRows.toLocaleString()} 行</span><span class="cleaning-metric">合计剔除 ${x.removedRows.toLocaleString()} 行</span></div>${sourceRows.length&&!sourceRows.some(r=>r['商品分类']!=null||r['菜品分类']!=null)?'<div>源文件无商品分类字段，仅能应用追加商品名单。</div>':''}`;
 }
-function clearCleaning(){cleaningRules=new Map();cleaningSource='';$('cleaningPaste').value='';$('cleaningFile').value='';renderCleaningState();showStatus('商品清洗名单已清空。',false)}
+function clearCleaning(){cleaningRules=new Map();cleaningSource='';$('cleaningPaste').value='';$('cleaningFile').value='';renderCleaningState();showStatus('追加商品名单已清空，默认分类清洗继续生效。',false)}
 function showStatus(text,isError=false){const el=$('status');el.className='status show';el.style.background=isError?'#fff0ef':'#fff8ed';el.style.borderColor=isError?'#f1bbb7':'#f3d4a8';el.style.color=isError?'#a62f27':'#8d5816';el.textContent=text}
 function addProduct(value=''){const row=document.createElement('div');row.className='product-row';row.innerHTML=`<input class="product-input" value="${escapeAttr(normalizeProductName(value))}" placeholder="输入完整商品名称"><button type="button" title="删除">×</button>`;row.querySelector('button').onclick=()=>{row.remove();$('productList').dispatchEvent(new Event('input',{bubbles:true}))};$('productList').appendChild(row)}
 function escapeAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
@@ -416,7 +422,7 @@ function storeRegionKey(value){return String(value??'').replace(/\s+/g,'').repla
 function selectedStoreMap(){const map={};document.querySelectorAll('#storeGrid input').forEach(i=>{const count=n(i.value);map[i.dataset.region]=count;map[storeRegionKey(i.dataset.region)]=count});return map}
 function rankMap(rows,channel){const m=new Map();for(const r of rows.filter(x=>x['订单类型']===channel)){const k=r['商品名称'];m.set(k,(m.get(k)||0)+n(r['商品销量']))}return new Map([...m.entries()].sort((a,b)=>b[1]-a[1]).map((x,i)=>[x[0],i+1]))}
 function calcFlexibleReport(){
-  const clean=cleaningStats(),effective=sourceRows.filter(r=>!clean.excludedNames.has(normalizeProductName(r['商品名称']))),requested=products(),blocked=requested.filter(p=>clean.excludedNames.has(p));if(blocked.length)throw new Error('重点商品被清洗名单标记为“否”：'+blocked.join('、'));
+  const clean=cleaningStats(),effective=sourceRows.filter(r=>!clean.isExcluded(r)),requested=products(),blocked=requested.filter(p=>clean.excludedNames.has(p));if(blocked.length)throw new Error('重点商品已被默认分类或追加名单剔除：'+blocked.join('、'));
   const byName=new Map();effective.forEach(row=>{const name=normalizeProductName(row['商品名称']);if(!name)return;const x=byName.get(name)||{name,q:0,qPrev:0,g:0,gPrev:0,receipt:0,gross:0,qtyShare:null,gmvShare:null,qtyGrowth:null,gmvGrowth:null,takeRate:null,margin:null};x.q+=n(row.qty??row['商品销量']);x.qPrev+=n(row.qtyPrev);x.g+=n(row.gmv??row['商品销售额']);x.gPrev+=n(row.gmvPrev);x.receipt+=n(row.receipt);x.gross+=n(row.gross);['qtyShare','gmvShare','qtyGrowth','gmvGrowth','takeRate','margin'].forEach(k=>{if(row[k]!=null)x[k]=row[k]});byName.set(name,x)});
   const all=[...byName.values()],selected=requested.length?requested.map(name=>byName.get(name)).filter(Boolean):all;const missing=requested.filter(name=>!byName.has(name)),totalQty=all.reduce((a,x)=>a+x.q,0),totalGmv=all.reduce((a,x)=>a+x.g,0),rank=new Map([...all].sort((a,b)=>b.q-a.q).map((x,i)=>[x.name,i+1]));
   selected.forEach(x=>{x.qtyShare=div(x.q,totalQty);x.gmvShare=div(x.g,totalGmv);if(x.qtyGrowth==null&&x.qPrev)x.qtyGrowth=div(x.q-x.qPrev,x.qPrev);if(x.gmvGrowth==null&&x.gPrev)x.gmvGrowth=div(x.g-x.gPrev,x.gPrev);if(x.takeRate==null&&x.g)x.takeRate=div(x.receipt,x.g);if(x.margin==null&&x.receipt)x.margin=div(x.gross,x.receipt);x.rank=rank.get(x.name)||'—';const rep=repurchaseData.get(x.name);x.repurchaseRate=rep?div(rep.repeat,rep.buyers):null});
@@ -428,9 +434,9 @@ function calcReport(){
   if(!(n($('targetValue').value)>0))throw new Error('目标值必须大于 0');
   if(!['elapsedDays','targetDays'].every(id=>Number.isInteger(n($(id).value))&&n($(id).value)>0))throw new Error('累计天数和目标天数必须为正整数');
   if(sourceMode!=='detail'||!sourceCaps.region||!sourceCaps.channel)return calcFlexibleReport();
-  const requested=products(),prods=requested.length?requested:[...new Set(sourceRows.map(r=>r['商品名称']).filter(name=>name&&cleaningRules.get(name)!=='否'))],channel=$('channel').value;
-  const clean=cleaningStats(),blocked=prods.filter(p=>clean.excludedNames.has(normalizeProductName(p)));if(blocked.length)throw new Error('重点商品被清洗名单标记为“否”：'+blocked.join('、'));
-  const effectiveRows=sourceRows.filter(r=>!clean.excludedNames.has(normalizeProductName(r['商品名称']))),reg=[...new Set(effectiveRows.map(r=>r['三级机构']).filter(Boolean))];if(!reg.length)throw new Error('清洗后没有可用的三级机构数据');
+  const clean=cleaningStats();const requested=products(),prods=requested.length?requested:[...new Set(sourceRows.filter(r=>!clean.isExcluded(r)).map(r=>r['商品名称']).filter(Boolean))],channel=$('channel').value;
+  const blocked=prods.filter(p=>clean.excludedNames.has(normalizeProductName(p)));if(blocked.length)throw new Error('重点商品已被默认分类或追加名单剔除：'+blocked.join('、'));
+  const effectiveRows=sourceRows.filter(r=>!clean.isExcluded(r)),reg=[...new Set(effectiveRows.map(r=>r['三级机构']).filter(Boolean))];if(!reg.length)throw new Error('清洗后没有可用的三级机构数据');
   const scoped=effectiveRows.filter(r=>reg.includes(r['三级机构']));if(!scoped.length)throw new Error('清洗后没有可用记录');
   const channelRows=scoped.filter(r=>r['订单类型']===channel),productRows=scoped.filter(r=>prods.includes(r['商品名称'])),productChannel=productRows.filter(r=>r['订单类型']===channel);
   const channelQty=sum(channelRows,'商品销量'),channelGmv=sum(channelRows,'商品销售额'),allQty=sum(scoped,'商品销量'),allGmv=sum(scoped,'商品销售额'),dineAllQty=sum(scoped.filter(r=>['堂食','打包'].includes(r['订单类型'])),'商品销量');
@@ -541,6 +547,7 @@ function saveBackground(src){backgroundSrc=src;try{if(src)localStorage.setItem(B
 $('bgUpload').onchange=e=>{const file=e.target.files?.[0];if(!file)return;if(!file.type.startsWith('image/')){$('bgStatus').textContent='请选择图片文件';return}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const max=1920,scale=Math.min(1,max/Math.max(img.width,img.height)),canvas=document.createElement('canvas');canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);saveBackground(canvas.toDataURL('image/jpeg',.82));e.target.value=''};img.onerror=()=>{$('bgStatus').textContent='图片读取失败'};img.src=reader.result};reader.readAsDataURL(file)};$('bgClear').onclick=()=>saveBackground('');$('bgTreatment').onchange=e=>{backgroundTreatment=e.target.value;localStorage.setItem(BG_TREATMENT_KEY,backgroundTreatment);applyBackground()};applyBackground();
 let manualLastFocus=null;function openManual(){manualLastFocus=document.activeElement;$('manualOverlay').classList.add('open');$('manualOverlay').setAttribute('aria-hidden','false');document.body.classList.add('manual-open');$('manualClose').focus()}function closeManual(){$('manualOverlay').classList.remove('open');$('manualOverlay').setAttribute('aria-hidden','true');document.body.classList.remove('manual-open');manualLastFocus?.focus?.()}$('manualOpen').onclick=openManual;$('manualClose').onclick=closeManual;$('manualOverlay').onclick=e=>{if(e.target===$('manualOverlay'))closeManual()};document.querySelectorAll('.manual-nav a').forEach(a=>a.onclick=e=>{e.preventDefault();document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth',block:'start'})});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('manualOverlay').classList.contains('open'))closeManual()});
 initFancySelect('channel','选择订单口径',{'外卖':'配送订单','堂食':'门店堂食','打包':'门店打包'});initFancySelect('targetMetric','选择目标指标',{product_qty:'商品销量',product_gmv:'商品GMV',channel_qty:'渠道销量',channel_gmv:'渠道GMV'});document.addEventListener('click',e=>{if(!e.target.closest('.fancy-select'))closeFancySelects()});
+$('defaultCategoryList').textContent=DEFAULT_EXCLUDED_CATEGORIES.join('、');renderCleaningState();
 renderStores();if(!restore()){addProduct('甜菜莓莓冰奶');updatePeriod();updateTargetUnit()}syncFancySelect('channel');syncFancySelect('targetMetric');
 // Invalidate generated output whenever its inputs change.
 function autoSaveProject(e){
